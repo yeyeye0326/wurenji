@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>无人机智能问答系统</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+
+  :root {
+    --sky-1: #aee6ff;
+    --sky-2: #d4f4ff;
+    --accent: #0477b9;
+    --note: #fff3b0;
+    --note-border: #ffd86b;
+    --text-dark: #023047;
+    --btn-bg: #0477b9;
+    --btn-hover: #0b79c1;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'Baloo 2', cursive;
+    background: linear-gradient(180deg, var(--sky-1) 0%, var(--sky-2) 100%);
+    color: var(--text-dark);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* 背景无人机动画 */
+  .bg-drone {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    opacity: 0.3;
+    z-index: 0;
+    animation: floatBg 8s ease-in-out infinite;
+  }
+  .bg-drone:nth-child(2) { left: 70%; top: 20%; animation-delay: 1s; }
+  .bg-drone:nth-child(3) { left: 20%; top: 60%; animation-delay: 2s; }
+  .bg-drone:nth-child(4) { left: 50%; top: 80%; animation-delay: 3s; }
+
+  @keyframes floatBg {
+    0% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(10deg); }
+    100% { transform: translateY(0) rotate(0deg); }
+  }
+
+  /* 主体容器 */
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    width: 95%;
+    max-width: 980px;
+    text-align: center;
+    animation: fadeIn 1.2s ease forwards, floatContainer 4s ease-in-out infinite;
+    opacity: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes floatContainer {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+    100% { transform: translateY(0); }
+  }
+
+  .page-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: #023047;
+  }
+
+  .hero { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+
+  .drone {
+    width: 120px;
+    height: 120px;
+    animation: floaty 4s ease-in-out infinite;
+    filter: drop-shadow(0 6px 10px rgba(2,48,71,0.08));
+  }
+  @keyframes floaty {
+    0% { transform: translateY(0) rotate(-2deg); }
+    50% { transform: translateY(-14px) rotate(4deg); }
+    100% { transform: translateY(0) rotate(-2deg); }
+  }
+
+  .note {
+    background: linear-gradient(180deg, var(--note) 0%, #fff6d1 100%);
+    border-radius: 16px;
+    border: 2px solid var(--note-border);
+    padding: 22px 26px;
+    box-shadow: 0 8px 20px rgba(2,48,71,0.08), 0 2px 6px rgba(2,48,71,0.04);
+  }
+  .note h2 { font-size: 22px; margin: 0 0 8px; font-weight: 700; }
+  .note p { font-size: 16px; margin: 0; line-height: 1.5; }
+  .hint { margin-top: 12px; font-size: 14px; color: #034b63; opacity: 0.9; }
+
+  .quick-questions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 15px;
+  }
+  .quick-questions button {
+    background: var(--btn-bg);
+    border: none;
+    border-radius: 16px;
+    color: white;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Baloo 2', cursive;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: 0.2s;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  .quick-questions button:hover { background: var(--btn-hover); }
+
+  .resources {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 20px;
+  }
+
+  .res-card {
+    width: 260px;
+    background: white;
+    border-radius: 16px;
+    padding: 20px 16px 16px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    text-decoration: none;
+    color: #023047;
+    font-family: 'Baloo 2', cursive;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .res-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+  }
+  .res-card h3 { font-size: 16px; font-weight: 700; margin: 12px 0 6px; display: flex; align-items: center; gap: 6px; }
+  .res-card p { font-size: 14px; opacity: 0.85; margin: 0; line-height: 1.4; }
+
+  .res-icon {
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    animation: floatIcon 3s ease-in-out infinite;
+  }
+  @keyframes floatIcon {
+    0% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-6px) rotate(5deg); }
+    100% { transform: translateY(0) rotate(0deg); }
+  }
+
+  .feedback {
+    position: fixed;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+    padding: 16px;
+    width: 240px;
+    font-family: 'Baloo 2', cursive;
+    z-index: 2;
+  }
+  .feedback h4 { margin: 0 0 8px; font-size: 16px; font-weight: 700; }
+  .feedback textarea {
+    width: 100%;
+    height: 80px;
+    resize: none;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    padding: 6px;
+    font-family: 'Baloo 2', cursive;
+    font-size: 14px;
+  }
+  .feedback button {
+    margin-top: 8px;
+    width: 100%;
+    background: var(--btn-bg);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: 0.2s;
+  }
+  .feedback button:hover { background: var(--btn-hover); }
+  /* 左侧小功能区样式 */
+.side-tools {
+  position: fixed;
+  left: 20px;
+  bottom: 40px; /* 紧跟留言框下方 */
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  border-radius: 15px;
+  padding: 15px;
+  width: 180px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: all 0.3s ease;
+  z-index: 20;
+}
+/* 分割线：在留言框和小功能区之间 */
+.side-tools::before {
+  content: "";
+  position: absolute;
+  top: -25px;
+  left: 10%;
+  width: 80%;
+  height: 1.5px;
+  background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.15), transparent);
+  opacity: 0.6;
+}
+
+
+.side-tools h4 {
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+  text-align: center;
+}
+
+.side-tools button {
+  border: none;
+  border-radius: 10px;
+  padding: 8px;
+  background: linear-gradient(135deg, #a2d2ff, #cdb4db);
+  color: #333;
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform 0.2s, background 0.3s;
+}
+
+.side-tools button:hover {
+  transform: scale(1.05);
+  background: linear-gradient(135deg, #bde0fe, #ffc8dd);
+}
+
+
+  .bottom-tip {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 22px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 10px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    color: #034b63;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 6px 18px rgba(2,48,71,0.08);
+    font-family: 'Baloo 2', cursive;
+    z-index: 3;
+  }
+  .btn-mock {
+    background: linear-gradient(180deg, var(--btn-hover), var(--btn-bg));
+    padding: 8px 12px;
+    border-radius: 16px;
+    color: white;
+    font-weight: 700;
+    box-shadow: 0 6px 18px rgba(4,119,185,0.18);
+  }
+  /* 夜间模式样式 */
+body.dark-mode {
+  background: radial-gradient(circle at center, #1e1e2f, #121212);
+  color: #f0f0f0;
+}
+
+body.dark-mode .res-card,
+body.dark-mode .feedback,
+body.dark-mode .side-tools {
+  background: rgba(50, 50, 70, 0.9);
+  color: #fff;
+}
+
+body.dark-mode button {
+  background: linear-gradient(135deg, #8ecae6, #219ebc);
+  color: #fff;
+}
+
+
+  /* ✅ 修正版手机端样式 */
+  @media (max-width: 760px) {
+    body {
+      flex-direction: column;
+      align-items: stretch;
+      height: auto;
+    }
+    .container {
+      width: 100%;
+      padding: 16px;
+      gap: 20px;
+      animation: none;
+    }
+    .page-title { font-size: 26px; }
+    .drone { width: 90px; height: 90px; }
+    .note { padding: 18px; font-size: 15px; }
+    .quick-questions { gap: 8px; }
+    .quick-questions button { font-size: 13px; padding: 6px 12px; }
+
+    .resources { flex-direction: column; align-items: center; gap: 12px; }
+    .res-card { width: 90%; }
+
+    .feedback {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 16px;
+      top: auto;
+      width: 90%;
+      max-width: 360px;
+    }
+
+    .bottom-tip {
+      position: static;
+      margin-top: 20px;
+      transform: none;
+      justify-content: center;
+      font-size: 12px;
+    }
+  }
+
+
+  </style>
+</head>
+<body>
+
+  <!-- 背景漂浮无人机 -->
+    <img class="bg-drone" src="https://cdn-icons-png.flaticon.com/512/833/833314.png" alt="漂浮无人机">
+    <img class="bg-drone" src="https://cdn-icons-png.flaticon.com/512/833/833314.png" alt="漂浮无人机">
+    <img class="bg-drone" src="https://cdn-icons-png.flaticon.com/512/833/833314.png" alt="漂浮无人机">
+    <img class="bg-drone" src="https://cdn-icons-png.flaticon.com/512/833/833314.png" alt="漂浮无人机">
+
+
+  <!-- 左侧留言窗口 -->
+  <div class="feedback">
+    <h4>💌 留言建议</h4>
+    <textarea id="feedback-text" placeholder="告诉我们你的想法..."></textarea>
+    <button onclick="submitFeedback()">提交</button>
+  </div>
+  <!-- 左侧小功能区 -->
+  <div class="side-tools">
+    <h4>🧩 小功能区</h4>
+    <button onclick="toggleTheme()">🌙 夜间模式</button>
+    <button onclick="showTips()">💡 今日小贴士</button>
+  </div>
+
+
+  <!-- 主体内容 -->
+  <div class="container">
+    <div class="page-title">无人机智能问答系统</div>
+    <div class="hero">
+      <img class="drone" src="https://cdn-icons-png.flaticon.com/512/2921/2921822.png" alt="可爱无人机图标">
+      <div class="note">
+        <h2>hai，你好！我是你的无人机智能助手</h2>
+        <p>遇到飞控、航拍、维护问题？我都能帮你答疑解惑 — 无论是航线规划、硬件排查，还是拍摄建议，随时问我吧！</p>
+        <div class="hint">👉 点击右下角悬浮图标开始提问哦～</div>
+        <div class="quick-questions">
+          <button onclick="openChatWithQuestion('🚀 如何提升无人机续航？')">🚀 如何提升无人机续航？</button>
+          <button onclick="openChatWithQuestion('📸 航拍画面模糊怎么办？')">📸 航拍画面模糊怎么办？</button>
+          <button onclick="openChatWithQuestion('⚙️ 无人机起飞失败是什么原因？')">⚙️ 无人机起飞失败是什么原因？</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 资源区 -->
+    <div class="resources">
+      <a class="res-card" href="https://www.dji.com/cn/flyingtips" target="_blank">
+        <img class="res-icon" src="https://cdn-icons-png.flaticon.com/512/833/833314.png" alt="无人机小图标">
+
+        <h3>📄 新手飞行指南</h3>
+        <p>大疆官方飞行技巧和安全操作指南，帮你快速上手无人机</p>
+      </a>
+
+      <a class="res-card" href="https://www.bilibili.com/video/BV12CMczHEeJ?vd_source=87985dfc6dd75e1df70f73f45edcaa52" target="_blank">
+        <img class="res-icon" src="https://cdn-icons-png.flaticon.com/512/2921/2921822.png" alt="无人机小图标">
+        <h3>🎥 航拍稳定技巧视频</h3>
+        <p>9分钟让你从0基础学会航拍！保姆级无人机教程收藏</p>
+      </a>
+
+      <a class="res-card" href="https://www.gov.cn/zhengce/content/202306/content_6888799.htm" target="_blank">
+        <img class="res-icon" src="https://cdn-icons-png.flaticon.com/512/2921/2921822.png" alt="无人机小图标">
+        <h3>🧰 无人驾驶航空器飞行管理条例</h3>
+        <p>无人机电机、传感器、飞控等常见问题快速排查</p>
+      </a>
+    </div>
+  </div>
+
+  <!-- 底部悬浮提示 -->
+  <div class="bottom-tip">
+    <span class="btn-mock">右下角呼叫</span>
+    <span>点击悬浮图标开始向问答小助手提问</span>
+  </div>
+
+  <script src="https://lf-cdn.coze.cn/obj/unpkg/flow-platform/chat-app-sdk/1.2.0-beta.10/libs/cn/index.js"></script>
+  <script>
+    const client = new CozeWebSDK.WebChatClient({
+      config: { bot_id:'7559951060161642496' },
+      componentProps: { title:'问答小助手' },
+      auth:{
+        type:'token',
+        token:'pat_CyAcq5fHZxZS5VztCeeVNRGYJmWp77IEIsDAVwXsf0NpLPO261vH3iUsIuHFgaex',
+        onRefreshToken: function(){ return 'pat_CyAcq5fHZxZS5VztCeeVNRGYJmWp77IEIsDAVwXsf0NpLPO261vH3iUsIuHFgaex'; }
+      }
+    });
+
+    function openChatWithQuestion(text){
+      client.open();
+      client.sendMessage({ text });
+    }
+
+    async function submitFeedback() {
+  const textarea = document.getElementById('feedback-text');
+  const message = textarea.value.trim();
+
+  if (!message) {
+    alert("请输入内容");
+    return;
+  }
+
+  const data = {
+    username: "游客",                // 可以以后换成用户系统里的昵称
+    message: message,                // 留言内容
+    createdAt: new Date().toISOString() // 当前时间
+  };
+
+  try {
+    const res = await fetch("/api/feedback", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
+    });
+
+    if (res.ok) {
+      const result = await res.json();
+      alert("感谢你的建议！服务器返回：" + (result.message || "提交成功"));
+      textarea.value = ""; // 清空输入框
+    } else {
+      alert("提交失败：" + res.status);
+    }
+  } catch (error) {
+    console.error("提交错误：", error);
+    alert("提交失败，请稍后再试。");
+  }
+}
+
+    
+  // 夜间模式切换
+  function toggleTheme() {
+    document.body.classList.toggle("dark-mode");
+  }
+
+  // 小贴士功能
+  function showTips() {
+    const tips = [
+      "🌤️ 起飞前请检查螺旋桨是否松动～",
+      "📸 拍摄时保持水平，可避免画面倾斜～",
+      "⚡ 飞行前请确保电量在80%以上哦！",
+      "🌬️ 风大时请勿起飞，确保安全第一～",
+      "🚁 起飞前请检查GPS信号是否良好～"
+    ];
+    const tip = tips[Math.floor(Math.random() * tips.length)];
+    alert(tip);
+  }
+
+
+  </script>
+  
+</body>
+</html>
